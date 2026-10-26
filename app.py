@@ -30,6 +30,16 @@ POS = cfg.POSITIVE_NAME.capitalize()
 BLUE, GREEN, ORANGE = "#1f77b4", "#2ca02c", "#ff7f0e"
 
 
+# The Colab run's results can also be committed as the results.zip it downloads.
+# If outputs/ is missing, unpack that zip's outputs/ folder: reading saved
+# results, never training.
+if not (OUTPUTS / "image_scores.json").is_file() and (ROOT / "results.zip").is_file():
+    import zipfile
+
+    with zipfile.ZipFile(ROOT / "results.zip") as archive:
+        archive.extractall(ROOT, members=[m for m in archive.namelist() if m.startswith("outputs/")])
+
+
 def read(name: str):
     path = OUTPUTS / name
     return json.loads(path.read_text()) if path.is_file() else None
