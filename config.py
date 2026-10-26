@@ -12,10 +12,12 @@ once every TODO below holds a figure you can defend.
 
 # 1. The decision -------------------------------------------------------------
 # One or two sentences: what is decided, by whom, from which image.
-DECISION = "TODO: describe the decision the model supports and who acts on it."
+DECISION = ("At a Canary Islands banana packing house, a camera photographs every hand of bananas on the "
+            "conveyor. The model decides whether the hand is packed (pass), shown to a line operator who "
+            "checks the photo (review), or taken off the line (fail): reprocessed if possible, otherwise discarded.")
 
 # What a positive case is called on screen, e.g. "defect" or "violation".
-POSITIVE_NAME = "rotten fruit"
+POSITIVE_NAME = "rotten hand"
 
 # A case is one image. It is POSITIVE when it contains at least one object of
 # any of these classes. Use the dataset's class names exactly as published.
@@ -36,7 +38,7 @@ BATCH = 16
 PATIENCE = 15               # stop early after this many epochs without improvement
 SEED = 0
 DEVICE = "auto"             # "auto" = NVIDIA GPU if present, else CPU. "mps" on an Apple Silicon Mac.
-WHERE_TRAINED = "TODO: e.g. Google Colab, NVIDIA T4"
+WHERE_TRAINED = "Google Colab, NVIDIA T4"
 
 # COCO zero-shot baseline. A COCO class whose name equals one of your classes is
 # matched automatically. To let a COCO class stand in for one of yours, add it as
@@ -44,18 +46,18 @@ WHERE_TRAINED = "TODO: e.g. Google Colab, NVIDIA T4"
 COCO_STAND_INS: dict[str, list[str]] = {}
 
 # 4. The cost of being wrong, in euros per case --------------------------------
-# TODO: every figure in this section and the next is a placeholder.
-COST_FALSE_POSITIVE = 1.0   # the model flags a case that was fine
-COST_FALSE_NEGATIVE = 1.0   # the model passes a case that was not fine
-COST_TRUE_POSITIVE = 0.0    # cost of acting on a correct flag, if there is one
+# A case is one hand of bananas (~2 kg) valued at the 0.75 EUR/kg production cost.
+COST_FALSE_POSITIVE = 1.50  # a good hand is thrown away: 2 kg x 0.75 EUR/kg
+COST_FALSE_NEGATIVE = 18.0  # a rotten hand is packed: lose the 12 kg box plus the claim, ~2 boxes x 12 kg x 0.75
+COST_TRUE_POSITIVE = 0.0    # a rotten hand is thrown away: it was already worthless
 COST_TRUE_NEGATIVE = 0.0
-BASE_RATE = 0.10            # share of real-world cases that are positive
+BASE_RATE = 0.01            # 1% of hands arrive rotten at the packing house
 
 # 5. Human review --------------------------------------------------------------
-CASES_PER_DAY = 1_000
-SECONDS_PER_REVIEW = 10
-REVIEWER_COST_PER_HOUR = 25.0          # fully loaded cost of a reviewer's hour
-PRODUCTIVE_HOURS_PER_REVIEWER = 7.0    # per reviewer per day
-REVIEWERS_AVAILABLE = 1.0              # people you could actually put on review
+CASES_PER_DAY = 25_000                # 50,000 kg a day / 2 kg per hand
+SECONDS_PER_REVIEW = 5               # provisional: time yourself reviewing photos
+REVIEWER_COST_PER_HOUR = 12.4          # 2026 minimum wage, 17,094 EUR / 1,808 h, plus employer social security
+PRODUCTIVE_HOURS_PER_REVIEWER = 7.0    # an 8-hour shift minus breaks
+REVIEWERS_AVAILABLE = 2.0              # two line operators
 
-PLACEHOLDERS = True
+PLACEHOLDERS = False
