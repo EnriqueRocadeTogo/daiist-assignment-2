@@ -1,9 +1,9 @@
 # Banana Rot Detection: Model Evaluation and Cost Analysis
 
 - **Name**: Enrique Roca de Togores
-- **Student ID**: [Your Student ID]
+- **Student ID**: 20044
 - **Email**: erocadetogor.ieu2022@student.ie.edu
-- **Group**: [Your Group]
+- **Group**: BBADBA 5B
 
 ## Business problem, and the cost of being wrong
 
@@ -62,7 +62,7 @@ Although some classes have fewer examples than others, all six classes have enou
 
 Object size introduces another limitation. A typical bounding box for a rotten banana occupies a median of approximately 14% of the image, while an overripe object occupies approximately 50%. Bounding boxes covering less than 1% of an image are rare. The model is therefore not being tested extensively on very small defects. In a real packing line, rot might appear only as a small damaged area on the tip of an otherwise healthy banana. Detecting these local defects could be more difficult than detecting the larger affected regions represented in the dataset.
 
-![Class balance and object size](outputs/dataset_overview.png)
+![Class balance and object size](dataset_overview.png)
 
 For these reasons, the test results should be interpreted as evidence of performance on this dataset, not as proof of equivalent performance on the production line. The differences in fruit appearance, camera conditions, object size and class prevalence limit the conclusions that can be drawn about real-world performance.
 
@@ -88,7 +88,7 @@ The COCO model can recognise the general category of a banana, but it does not p
 
 The large difference between the finetuned model and the baselines was expected to some extent because the finetuned model learns the specific categories from the target dataset, whereas the baselines do not. However, the results do not establish how well the model will generalise to the production line, since all these comparisons use the same test dataset.
 
-![Training curves](outputs/training_curves.png)
+![Training curves](training_curves.png)
 
 ## Per-class evaluation and failure modes
 
@@ -109,12 +109,12 @@ These results suggest that the model can distinguish the different ripening cate
 
 Ultralytics' additional evaluation reports a precision of 0.903 and a recall of 0.875 for rotten, at the confidence that maximises F1. Precision indicates that most predictions labelled as rotten are correct, while recall indicates that the model detects 87.5% of the annotated rotten instances under the evaluation settings used. The remaining missed detections are important because false negatives have a high estimated economic cost in the proposed business scenario.
 
-![Normalised confusion matrix](outputs/ultralytics_test/confusion_matrix_normalized.png)
+![Normalised confusion matrix](confusion_matrix_normalized.png)
 
-Inspection of the saved failure examples in `outputs/failures` reveals a recurring confusion between overripe and rotten. In some cases, the model labels an entire banana as overripe, with confidence scores between 0.74 and 0.93, while failing to detect a rotten tip. In other cases, it produces false alarms with confidence scores of 0.79 and 0.62 for banana tips that resemble rotten areas. Some of these cases may also reflect ambiguous or inconsistent ground-truth annotations.
+Inspection of the saved failure examples (also shown in the dashboard's "Where it fails" tab) reveals a recurring confusion between overripe and rotten. In some cases, the model labels an entire banana as overripe, with confidence scores between 0.74 and 0.93, while failing to detect a rotten tip. In other cases, it produces false alarms with confidence scores of 0.79 and 0.62 for banana tips that resemble rotten areas. Some of these cases may also reflect ambiguous or inconsistent ground-truth annotations.
 
-![A missed rotten hand](outputs/failures/missed_01_score_0.00.jpg)
-![A false alarm](outputs/failures/false_alarm_01_score_0.79.jpg)
+![A missed rotten hand](missed_01_score_0.00.jpg)
+![A false alarm](false_alarm_01_score_0.79.jpg)
 
 The distinction between overripe and rotten is therefore one of the main challenges of the task. An overripe banana may have extensive colour changes and dark spots without necessarily being rotten, whereas rot may affect only a small part of an otherwise acceptable banana. The model must learn the visual characteristics that separate these conditions, rather than treating all dark or deteriorated-looking areas as equivalent.
 
@@ -137,7 +137,7 @@ The economic evaluation assumes that 1% of banana hands in production are rotten
 
 The operating threshold is selected using the validation set and then evaluated on the test set. This separation helps prevent the test results from influencing the threshold selection and provides a more independent assessment of the chosen operating point.
 
-![Cost against threshold](outputs/cost_curve.png)
+![Cost against threshold](cost_curve.png)
 
 For the model-only strategy, the selected rejection threshold is 0.62. Under the assumed production prevalence and cost matrix, this strategy produces an estimated cost of €50.71 per 1,000 banana hands. It misses 24.7% of rotten hands and rejects approximately 0.4% of good hands.
 
@@ -145,7 +145,7 @@ At first, a relatively high rejection threshold may seem surprising because a fa
 
 Under this scenario, each percentage point of false-positive rate corresponds to approximately 9.9 good hands and costs about €14.85. Each percentage point of false-negative rate corresponds to approximately 0.1 rotten hands and costs about €1.80. This helps explain why the optimal threshold is not determined solely by the relative cost of the two types of error. It also depends on their respective frequencies and on the model's confidence scores.
 
-The sensitivity analysis in `outputs/sensitivity.csv` evaluates how the results change under alternative assumptions. The upper threshold remains at 0.79 across the scenarios considered, while the lower threshold varies from 0.01 to 0.29. The proportion of hands sent for human review ranges from 3% to 16%. In all the tested scenarios, the estimated cost remains substantially below that of taking no action.
+The sensitivity analysis in `sensitivity.csv` evaluates how the results change under alternative assumptions. The upper threshold remains at 0.79 across the scenarios considered, while the lower threshold varies from 0.01 to 0.29. The proportion of hands sent for human review ranges from 3% to 16%. In all the tested scenarios, the estimated cost remains substantially below that of taking no action.
 
 | Scenario | Model-alone threshold | Review band | Sent to review | Cost per 1,000 | Do nothing per 1,000 |
 |---|---|---|---|---|---|
